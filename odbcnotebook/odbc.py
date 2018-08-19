@@ -32,6 +32,9 @@ class PagingContext:
 
             page.append(named_row)
 
+            if len(page) == 100:
+                break
+
         return page
 
     def finish(self):
@@ -73,12 +76,21 @@ class RPC:
         return tables
 
     def tables(self):
+        """
+        RPC method; returns all tables
+        """
         return self._table_like('table')
 
     def views(self):
+        """
+        RPC method; returns all views
+        """
         return self._table_like('view')
 
     def columns(self, catalog, schema, table):
+        """
+        RPC method; returns columns from one or more tables
+        """
         cursor = self.connection.cursor()
         cursor.columns(table, catalog, schema, None)
 
@@ -94,6 +106,10 @@ class RPC:
         ]
 
     def execute(self, sql):
+        """
+        RPC method; executes a query and configures the paging context for
+        result-based functions
+        """
         if self.page_context is not None:
             raise ValueError('Cannot have active query when calling execute()')
 
@@ -103,6 +119,9 @@ class RPC:
         return True
 
     def metadata(self):
+        """
+        RPC method: returns the columns available on the current result set
+        """
         if self.page_context is None:
             raise ValueError('Must have active query before calling metadata()')
 
@@ -113,17 +132,27 @@ class RPC:
         }
 
     def count(self):
+        """
+        RPC method: returns the update count on the current result set
+        """
         if self.page_context is None:
             raise ValueError('Must have active query before calling metadata()')
 
         return self.page_context.count()
 
     def page(self):
+        """
+        RPC method: returns a page of data from the current result set
+        """
         if self.page_context is None:
             raise ValueError('Must have active query before calling page()')
 
         return self.page_context.page()
+
     def finish(self):
+        """
+        RPC method: closes the current result set
+        """
         if self.page_context is None:
             raise ValueError('Must have active query before calling finish()')
 
@@ -132,6 +161,9 @@ class RPC:
         return True
 
     def quit(self):
+        """
+        RPC method: terminates the server
+        """
         if self.page_context is not None:
             raise ValueError('Cannot have active query when calling quit()')
 

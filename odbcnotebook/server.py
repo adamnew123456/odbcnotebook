@@ -5,8 +5,7 @@ import types
 
 import pyodbc
 
-import jsonrpc
-import odbc
+from odbcnotebook import jsonrpc, odbc
 
 USAGE = 'odbcnotebook [-p PORT] [-c CONNECTION_STRING] [-s KEY CERT PASSWORD]'
 
@@ -83,9 +82,8 @@ def run_server(runconfig):
         return
 
     odbc_inst = odbc.RPC(connection)
-    jsonrpc.JSONRPCHandler.RPC = odbc_inst
-
-    server = HTTPServer(('localhost', runconfig.port), jsonrpc.JSONRPCHandler)
+    handler_class = jsonrpc.make_json_handler(odbc_inst)
+    server = HTTPServer(('localhost', runconfig.port), handler_class)
 
     def shutdown():
         # Since HTTPServer.shutdown blocks until the server shuts down, the
@@ -98,5 +96,8 @@ def run_server(runconfig):
     server.socket = wrap_ssl(runconfig, server.socket)
     server.serve_forever()
 
-if __name__ ==  '__main__':
+def main():
+    """
+    Entry point
+    """
     run_server(parse_args())
