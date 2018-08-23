@@ -98,6 +98,9 @@ def make_json_handler(rpc):
             """
             Returns a result response that can be encoded to JSON.
             """
+            if id is None:
+                return None
+
             return {
                 'jsonrpc': '2.0',
                 'id': id,
