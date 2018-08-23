@@ -19,7 +19,7 @@ class PagingContext:
         """
         return self.cursor.rowcount
 
-    def page(self):
+    def page(self, max):
         """
         Returns up to a page of data rows
         """
@@ -32,7 +32,7 @@ class PagingContext:
 
             page.append(named_row)
 
-            if len(page) == 100:
+            if len(page) == max:
                 break
 
         return page
@@ -96,8 +96,8 @@ class RPC:
 
         return [
             {
-                'catalog': row[0],
-                'schema': row[1],
+                'catalog': row[0] or '',
+                'schema': row[1] or '',
                 'table': row[2],
                 'column': row[3],
                 'datatype': row[5]
@@ -126,10 +126,10 @@ class RPC:
             raise ValueError('Must have active query before calling metadata()')
 
         metadata = self.page_context.metadata()
-        return {
-            'columnnames': [column for (column, _) in metadata],
-            'columntypes': [type_name for (_, type_name) in metadata]
-        }
+        return [
+            {'column': column, 'datatype': type_name}
+            for (column, type_name) in metadata
+        ]
 
     def count(self):
         """
@@ -140,14 +140,17 @@ class RPC:
 
         return self.page_context.count()
 
-    def page(self):
+    def page(self, max):
         """
         RPC method: returns a page of data from the current result set
         """
         if self.page_context is None:
             raise ValueError('Must have active query before calling page()')
 
-        return self.page_context.page()
+        if max <= 0:
+            raise ValueError('Page size must be a positive integer')
+
+        return self.page_context.page(max)
 
     def finish(self):
         """
