@@ -43,11 +43,13 @@ def make_json_handler(rpc):
             Ensures that we understand the HTTP portion of the request.
             """
             if self.path != '/':
+                print('Invalid request path:', self.path)
                 self.send_error(HTTPStatus.NOT_FOUND, 'Request Must Have Path Of /')
                 raise ValueError
 
             content_type = self.headers.get('Content-Type', None)
             if content_type != 'application/json':
+                print('Invalid request Content-Type:', self.path)
                 self.send_error(HTTPStatus.BAD_REQUEST, 'Content-Type Must Be application/json')
                 raise ValueError
 
@@ -201,6 +203,7 @@ def make_json_handler(rpc):
             """
             Sends back the headers necessary to support CORS
             """
+            print('Processing CORS OPTIONS request')
             self.send_response(200, 'OK')
             for header, value in CORS_HEADERS.items():
                 self.send_header(header, value)

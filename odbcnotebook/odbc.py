@@ -79,18 +79,21 @@ class RPC:
         """
         RPC method; returns all tables
         """
+        print('tables()')
         return self._table_like('table')
 
     def views(self):
         """
         RPC method; returns all views
         """
+        print('views()')
         return self._table_like('view')
 
     def columns(self, catalog, schema, table):
         """
         RPC method; returns columns from one or more tables
         """
+        print('columns({}, {}, {})'.format(catalog, schema, table))
         cursor = self.connection.cursor()
         cursor.columns(table, catalog, schema, None)
 
@@ -110,7 +113,9 @@ class RPC:
         RPC method; executes a query and configures the paging context for
         result-based functions
         """
+        print('execute({})'.format(sql))
         if self.page_context is not None:
+            print('- Called with active query')
             raise ValueError('Cannot have active query when calling execute()')
 
         cursor = self.connection.cursor()
@@ -122,7 +127,9 @@ class RPC:
         """
         RPC method: returns the columns available on the current result set
         """
+        print('metadata()')
         if self.page_context is None:
+            print('- Called without active query')
             raise ValueError('Must have active query before calling metadata()')
 
         metadata = self.page_context.metadata()
@@ -135,7 +142,9 @@ class RPC:
         """
         RPC method: returns the update count on the current result set
         """
+        print('count()')
         if self.page_context is None:
+            print('- Called without active query')
             raise ValueError('Must have active query before calling metadata()')
 
         return self.page_context.count()
@@ -144,10 +153,13 @@ class RPC:
         """
         RPC method: returns a page of data from the current result set
         """
+        print('page({})'.format(max))
         if self.page_context is None:
+            print('- Called without active query')
             raise ValueError('Must have active query before calling page()')
 
         if max <= 0:
+            print('- Invalid page size')
             raise ValueError('Page size must be a positive integer')
 
         return self.page_context.page(max)
@@ -156,7 +168,9 @@ class RPC:
         """
         RPC method: closes the current result set
         """
+        print('finish()')
         if self.page_context is None:
+            print('- Called without active query')
             raise ValueError('Must have active query before calling finish()')
 
         self.page_context.finish()
@@ -167,7 +181,9 @@ class RPC:
         """
         RPC method: terminates the server
         """
+        print('quit()')
         if self.page_context is not None:
+            print('- Called with active query')
             raise ValueError('Cannot have active query when calling quit()')
 
         self.connection.close()
