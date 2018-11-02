@@ -8,7 +8,7 @@ setup(
         ['odbc-server = odbcnotebook.server:main']
     },
     author='Chris Marchetti',
-    version='0.1.1',
+    version='0.1.2',
     description='An ODBC backend for the ADONotebook protocol',
     author_email='adamnew123456@gmail.com',
     keywords=['networking', 'databases'],

@@ -60,19 +60,18 @@ class RPC:
         Retrieves either tables or views, depending upon what the target kind
         is ('TABLE' or 'VIEW')
         """
-        cursor = self.connection.cursor()
-        cursor.tables()
+        with self.connection.cursor() as cursor:
+            cursor.tables()
 
-        tables = []
-        for (catalog, schema, table, kind, _) in cursor:
-            if kind.lower() == target_kind.lower():
-                tables.append({
-                    'catalog': catalog or '',
-                    'schema': schema or '',
-                    'table': table
-                })
+            tables = []
+            for (catalog, schema, table, kind, _) in cursor:
+                if kind.lower() == target_kind.lower():
+                    tables.append({
+                        'catalog': catalog or '',
+                        'schema': schema or '',
+                        'table': table
+                    })
 
-        cursor.close()
         return tables
 
     def tables(self):
@@ -94,19 +93,21 @@ class RPC:
         RPC method; returns columns from one or more tables
         """
         print('columns({}, {}, {})'.format(catalog, schema, table))
-        cursor = self.connection.cursor()
-        cursor.columns(table, catalog, schema, None)
+        with self.connection.cursor() as cursor:
+            catalog = catalog or None
+            schema = schema or None
+            cursor.columns(table, catalog, schema, None)
 
-        return [
-            {
-                'catalog': row[0] or '',
-                'schema': row[1] or '',
-                'table': row[2],
-                'column': row[3],
-                'datatype': row[5]
-            }
-            for row in cursor
-        ]
+            return [
+                {
+                    'catalog': row[0] or '',
+                    'schema': row[1] or '',
+                    'table': row[2],
+                    'column': row[3],
+                    'datatype': row[5]
+                }
+                for row in cursor
+            ]
 
     def execute(self, sql):
         """
